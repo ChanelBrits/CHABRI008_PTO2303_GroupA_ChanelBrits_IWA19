@@ -1,4 +1,3 @@
-
 BOOKS_PER_PAGE = 36;
 
 authors = {
