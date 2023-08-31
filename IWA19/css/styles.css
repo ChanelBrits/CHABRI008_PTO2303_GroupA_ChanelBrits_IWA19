@@ -142,6 +142,30 @@ option {
   width: 100%;
 }
 
+/* .list__block { */
+  /* display: flex; */
+  /* align-items: center; */
+  /* height: 7rem; */
+  /* width: 30rem; */
+  /* background-color: rgb(var(--color-force-dark)); */
+  /* border-radius: 1rem; */
+/* } */
+/*  */
+/* .list__block img { */
+  /* padding: 0.7rem; */
+  /* height: 7rem; */
+/* } */
+/*  */
+/* .list__block h2 { */
+  /* font-size: 1.25rem; */
+/* } */
+/*  */
+/* .list__block p { */
+  /* font-size: 1rem; */
+  /* color: rgb(var(--color-force-light)); */
+/* } */
+
+
 @media (min-width: 50rem) {
   .list__items {
     grid-template-columns: repeat(2, 1fr);
