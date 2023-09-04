@@ -12,6 +12,15 @@ export const html = {
         option: document.querySelector('[data-settings-theme]'),
         cancel: document.querySelector('[data-settings-cancel]'),
         save: document.querySelector('.overlay__button_primary[type="submit"][form="settings"]')
+    },
+    preview: {
+        overlay: document.querySelector('[data-list-active]'),
+        close: document.querySelector('[data-list-close]'),
+        blur: document.querySelector('[data-list-blur]'),
+        image: document.querySelector('[data-list-image]'),
+        title: document.querySelector('[data-list-title]'),
+        subtitle: document.querySelector('[data-list-subtitle]'),
+        description: document.querySelector('[data-list-description]')
     }
 }
 

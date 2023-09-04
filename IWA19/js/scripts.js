@@ -89,10 +89,73 @@ const handlerSettingsSubmit = (event) => {
 
     changeTheme(settingsOptionValue);
     closeOverlay(settingsOverlay);
-} 
+}
+
+let clickedBookId = null;
+
+const handlerPreviewToggle = (event) => {
+    const {
+        overlay: previewOverlay,
+        close: previewClose
+    } = html.preview
+
+    const bookBlock = event.currentTarget;
+    clickedBookId = bookBlock.dataset.id;
+    console.log(clickedBookId)
+
+    previewOverlay.style.display = 'block';
+
+    previewClose.addEventListener('click', () => {
+        closeOverlay(previewOverlay);
+    })
+}
+
+const handlerPreviewDisplay = (event) => {
+    const {
+        blur: previewBlur,
+        image: previewImage,
+        title: previewTitle,
+        subtitle: previewSubtitle,
+        description: previewDescription,
+    } = html.preview
+
+    const clickedBookData = books.find((book) => book.id === clickedBookId);
+
+    const publicationYear = new Date(clickedBookData.published).getFullYear();
+    const authorName = authors[clickedBookData.author];
+    console.log(publicationYear, authorName)
+
+    previewBlur.src = clickedBookData.image;
+    previewImage.src = clickedBookData.image;
+
+    previewTitle.innerText = clickedBookData.title;
+
+    previewSubtitle.innerHTML = ''
+    const subtitleElement = document.createElement('h4');
+    subtitleElement.innerText = `${authorName} (${publicationYear})`;
+    previewSubtitle.appendChild(subtitleElement);
+
+    previewDescription.innerText = clickedBookData.description;
+
+    previewClose.addEventListener('click', () => {
+        subtitleElement.remove();
+    })
+
+}
+
+const bookBlocks = document.querySelectorAll('[data-id]');
+
+for (const book of bookBlocks) {
+    book.addEventListener('click', handlerPreviewToggle);
+    book.addEventListener('click', handlerPreviewDisplay);
+}
 
 html.settings.button.addEventListener('click', handlerSettingsToggle);
 html.settings.save.addEventListener('click', handlerSettingsSubmit);
+
+const createPreviewHtml = () => {
+
+}
 
 matches = books
 page = 1;
