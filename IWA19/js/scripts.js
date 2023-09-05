@@ -1,4 +1,5 @@
 import { 
+    BOOKS_PER_PAGE,
     authors, 
     genres, 
     books
@@ -28,10 +29,16 @@ for (const book of books) {
     });
 }
 
+let page = 1;
+
 const createListHtml = (bookList) => {
+    const startIndex = (page - 1) * BOOKS_PER_PAGE;
+    const endIndex = startIndex + BOOKS_PER_PAGE;
+    const booksOnPage = bookList.slice(startIndex, endIndex);
+
     const fragment = document.createDocumentFragment();
 
-    bookList.map( book => {
+    for (const book of booksOnPage) {
         const bookContainer = document.createElement('div')
 
         bookContainer.innerHTML = `
@@ -46,7 +53,8 @@ const createListHtml = (bookList) => {
             </div>
         `
         fragment.appendChild(bookContainer);
-    })
+    }
+ 
     const bookListElement = document.querySelector('[data-list-items]');
     bookListElement.appendChild(fragment);
 
@@ -54,9 +62,22 @@ const createListHtml = (bookList) => {
     for (const element of styleElements) {
         createStyling(element);
     }
+
+    const showMoreButton = document.querySelector('[data-list-button]');
+    const remainingBooks = bookList.length - endIndex;
+
+    showMoreButton.innerText = `Show more (${ remainingBooks > 0 ? remainingBooks : 0 })`;
 }
 
 createListHtml(bookList);
+
+const handlerShowMore = (event) => {
+    event.preventDefault();
+       
+    page = page + 1;
+    createListHtml(bookList);
+    console.log(page)
+}
 
 const handlerSettingsToggle = (event) => {
     event.preventDefault();
@@ -143,6 +164,8 @@ const handlerPreviewDisplay = (event) => {
 
 }
 
+html.other.button.addEventListener('click', handlerShowMore);
+
 const bookBlocks = document.querySelectorAll('[data-id]');
 
 for (const book of bookBlocks) {
@@ -152,10 +175,6 @@ for (const book of bookBlocks) {
 
 html.settings.button.addEventListener('click', handlerSettingsToggle);
 html.settings.save.addEventListener('click', handlerSettingsSubmit);
-
-const createPreviewHtml = () => {
-
-}
 
 matches = books
 page = 1;
