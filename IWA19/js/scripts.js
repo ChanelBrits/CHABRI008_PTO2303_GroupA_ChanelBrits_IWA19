@@ -14,6 +14,10 @@ import {
 
 const bookList = []
 
+let page = 1;
+
+let clickedBookId = null;
+
 for (const book of books) {
     const authorId = book.author;
     const authorName = authors[authorId];
@@ -25,12 +29,19 @@ for (const book of books) {
         title: book.title,
         author: authorName,
         genres: genreNames,
-        image: book.image
+        image: book.image,
+        description: book.description,
+        published: book.published
     });
 }
-
-let page = 1;
-
+/**
+ * Generates and appends HTML elements to display a list of books within the
+ * current page's range defined by the start and end indices. These HTML elements
+ * are styled accordingly, and the "Show more" button is updated to reflect the
+ * number of remaining books.
+ *
+ * @param {Array} bookList - An array of book objects to display.
+ */
 const createListHtml = (bookList) => {
     const startIndex = (page - 1) * BOOKS_PER_PAGE;
     const endIndex = startIndex + BOOKS_PER_PAGE;
@@ -39,7 +50,9 @@ const createListHtml = (bookList) => {
     const fragment = document.createDocumentFragment();
 
     for (const book of booksOnPage) {
-        const bookContainer = document.createElement('div')
+        const bookContainer = document.createElement('div');
+        bookContainer.dataset.container = '';
+        bookContainer.dataset.page = page;
 
         bookContainer.innerHTML = `
             <div class="list__block" data-styling="container" data-id=${book.id}>
@@ -51,7 +64,7 @@ const createListHtml = (bookList) => {
                     <p class="list__block-author" data-styling="author">${book.author}</p>
                 </div>
             </div>
-        `
+        `        
         fragment.appendChild(bookContainer);
     }
  
@@ -71,12 +84,87 @@ const createListHtml = (bookList) => {
 
 createListHtml(bookList);
 
+/**
+ * Handles the click event when a user selects a book. It then toggles
+ * the preview overlay display. The global variable `clickedBookId` is updated
+ * based on the book that was clicked, and it adds an event listener to the
+ * close button in the overlay for easy closing when clicked.
+ *
+ * @param {Event} event
+ */
+const handlerPreviewToggle = (event) => {
+    const {
+        overlay: previewOverlay,
+        close: previewClose
+    } = html.preview
+
+    console.log('handlerPreviewToggle is running');
+
+    const bookBlock = event.currentTarget;
+    const currentPage = document.querySelector('[data-page]');
+    console.log(currentPage)
+    
+    clickedBookId = bookBlock.dataset.id;
+    console.log(clickedBookId)
+
+    previewOverlay.style.display = 'block';
+
+    previewClose.addEventListener('click', () => {
+        closeOverlay(previewOverlay);
+    })
+}
+
+const handlerPreviewDisplay = (event) => {
+    const {
+        blur: previewBlur,
+        image: previewImage,
+        title: previewTitle,
+        subtitle: previewSubtitle,
+        description: previewDescription,
+    } = html.preview
+
+    console.log('display works');
+
+    const clickedBookData = bookList.find((book) => book.id === clickedBookId);
+    console.log(clickedBookData)
+    
+    const publicationYear = new Date(clickedBookData.published).getFullYear();
+    const authorName = clickedBookData.author;
+    console.log(publicationYear, authorName)
+
+    previewBlur.src = clickedBookData.image;
+    previewImage.src = clickedBookData.image;
+
+    previewTitle.innerText = clickedBookData.title;
+
+    previewSubtitle.innerHTML = '';
+    const subtitleElement = document.createElement('h4');
+    subtitleElement.innerText = `${authorName} (${publicationYear})`;
+    previewSubtitle.appendChild(subtitleElement);
+
+    previewDescription.innerText = clickedBookData.description;
+
+    previewClose.addEventListener('click', () => {
+        subtitleElement.remove();
+    });
+}
+
 const handlerShowMore = (event) => {
     event.preventDefault();
        
     page = page + 1;
+    const bookContainers = document.querySelectorAll('[data-container]');
+    for (const book of bookContainers) {
+        book.dataset.page = page;
+    }
+
     createListHtml(bookList);
-    console.log(page)
+
+    const bookBlocks = document.querySelectorAll('[data-id]')
+
+    for (const book of bookBlocks) {
+        book.addEventListener('click', handlerPreviewToggle);
+    }
 }
 
 const handlerSettingsToggle = (event) => {
@@ -112,240 +200,14 @@ const handlerSettingsSubmit = (event) => {
     closeOverlay(settingsOverlay);
 }
 
-let clickedBookId = null;
-
-const handlerPreviewToggle = (event) => {
-    const {
-        overlay: previewOverlay,
-        close: previewClose
-    } = html.preview
-
-    const bookBlock = event.currentTarget;
-    clickedBookId = bookBlock.dataset.id;
-    console.log(clickedBookId)
-
-    previewOverlay.style.display = 'block';
-
-    previewClose.addEventListener('click', () => {
-        closeOverlay(previewOverlay);
-    })
-}
-
-const handlerPreviewDisplay = (event) => {
-    const {
-        blur: previewBlur,
-        image: previewImage,
-        title: previewTitle,
-        subtitle: previewSubtitle,
-        description: previewDescription,
-    } = html.preview
-
-    const clickedBookData = books.find((book) => book.id === clickedBookId);
-
-    const publicationYear = new Date(clickedBookData.published).getFullYear();
-    const authorName = authors[clickedBookData.author];
-    console.log(publicationYear, authorName)
-
-    previewBlur.src = clickedBookData.image;
-    previewImage.src = clickedBookData.image;
-
-    previewTitle.innerText = clickedBookData.title;
-
-    previewSubtitle.innerHTML = ''
-    const subtitleElement = document.createElement('h4');
-    subtitleElement.innerText = `${authorName} (${publicationYear})`;
-    previewSubtitle.appendChild(subtitleElement);
-
-    previewDescription.innerText = clickedBookData.description;
-
-    previewClose.addEventListener('click', () => {
-        subtitleElement.remove();
-    })
-
-}
-
 html.other.button.addEventListener('click', handlerShowMore);
 
-const bookBlocks = document.querySelectorAll('[data-id]');
+const bookContainer = document.querySelectorAll('[data-id]');
 
-for (const book of bookBlocks) {
+for (const book of bookContainer) {
     book.addEventListener('click', handlerPreviewToggle);
     book.addEventListener('click', handlerPreviewDisplay);
 }
 
 html.settings.button.addEventListener('click', handlerSettingsToggle);
 html.settings.save.addEventListener('click', handlerSettingsSubmit);
-
-matches = books
-page = 1;
-
-if (!books && !Array.isArray(books)) throw new Error('Source required') 
-if (!range && range.length < 2) throw new Error('Range must be an array with two numbers')
-
-const extracted = books.slice(0, 36)
-
-for ({ author, image, title, id }; extracted; i++) {
-    const preview = createPreview({
-        author,
-        id,
-        image,
-        title
-    })
-
-    fragment.appendChild(preview)
-}
-
-data-list-items.appendChild(fragment)
-
-genres = document.createDocumentFragment()
-element = document.createElement('option')
-element.value = 'any'
-element = 'All Genres'
-genres.appendChild(element)
-
-for ([id, name]; Object.entries(genres); i++) {
-    document.createElement('option')
-    element.value = value
-    element.innerText = text
-    genres.appendChild(element)
-}
-
-data-search-genres.appendChild(genres)
-
-authors = document.createDocumentFragment()
-element = document.createElement('option')
-element.value = 'any'
-element.innerText = 'All Authors'
-authors.appendChild(element)
-
-for ([id, name];Object.entries(authors); id++) {
-    document.createElement('option')
-    element.value = value
-    element = text
-    authors.appendChild(element)
-}
-
-// data-search-authors.appendChild(authors)
-
-// data-settings-theme.value === window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day'
-// v = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches? 'night' | 'day'
-
-// document.element.style.setProperty('--color-dark', css[v].dark);
-// document.element.style.setProperty('--color-light', css[v].light);
-// data-list-button = "Show more (books.length - BOOKS_PER_PAGE)"
-
-// data-list-button.disabled = !(matches.length - [page * BOOKS_PER_PAGE] > 0)
-
-// data-list-button.innerHTML = /* html */ [
-//     '<span>Show more</span>',
-//     '<span class="list__remaining"> (${matches.length - [page * BOOKS_PER_PAGE] > 0 ? matches.length - [page * BOOKS_PER_PAGE] : 0})</span>',
-// ]
-
-// data-search-cancel.click() { data-search-overlay.open === false }
-// data-settings-cancel.click() { querySelect(data-settings-overlay).open === false }
-// data-settings-form.submit() { actions.settings.submit }
-// data-list-close.click() { data-list-active.open === false }
-
-// data-list-button.click() {
-//     document.querySelector([data-list-items]).appendChild(createPreviewsFragment(matches, page x BOOKS_PER_PAGE, {page + 1} x BOOKS_PER_PAGE]))
-//     actions.list.updateRemaining()
-//     page = page + 1
-// }
-
-// data-header-search.click() {
-//     data-search-overlay.open === true ;
-//     data-search-title.focus();
-// }
-
-// data-search-form.click(filters) {
-//     preventDefault()
-//     const formData = new FormData(event.target)
-//     const filters = Object.fromEntries(formData)
-//     result = []
-
-//     for (book; booksList; i++) {
-//         titleMatch = filters.title.trim() = '' && book.title.toLowerCase().includes[filters.title.toLowerCase()]
-//         authorMatch = filters.author = 'any' || book.author === filters.author
-
-//         {
-//             genreMatch = filters.genre = 'any'
-//             for (genre; book.genres; i++) { if singleGenre = filters.genre { genreMatch === true }}}
-//         }
-
-//         if titleMatch && authorMatch && genreMatch => result.push(book)
-//     }
-
-//     if display.length < 1 
-//     data-list-message.class.add('list__message_show')
-//     else data-list-message.class.remove('list__message_show')
-    
-
-//     data-list-items.innerHTML = ''
-//     const fragment = document.createDocumentFragment()
-//     const extracted = source.slice(range[0], range[1])
-
-//     for ({ author, image, title, id }; extracted; i++) {
-//         const { author: authorId, id, image, title } = props
-
-//         element = document.createElement('button')
-//         element.classList = 'preview'
-//         element.setAttribute('data-preview', id)
-
-//         element.innerHTML = /* html */ `
-//             <img
-//                 class="preview__image"
-//                 src="${image}"
-//             />
-            
-//             <div class="preview__info">
-//                 <h3 class="preview__title">${title}</h3>
-//                 <div class="preview__author">${authors[authorId]}</div>
-//             </div>
-//         `
-
-//         fragment.appendChild(element)
-//     }
-    
-//     data-list-items.appendChild(fragments)
-//     initial === matches.length - [page * BOOKS_PER_PAGE]
-//     remaining === hasRemaining ? initial : 0
-//     data-list-button.disabled = initial > 0
-
-//     data-list-button.innerHTML = /* html */ `
-//         <span>Show more</span>
-//         <span class="list__remaining"> (${remaining})</span>
-//     `
-
-//     window.scrollTo({ top: 0, behavior: 'smooth' });
-//     data-search-overlay.open = false
-// }
-
-// data-settings-overlay.submit; {
-//     preventDefault()
-//     const formData = new FormData(event.target)
-//     const result = Object.fromEntries(formData)
-//     document.documentElement.style.setProperty('--color-dark', css[result.theme].dark);
-//     document.documentElement.style.setProperty('--color-light', css[result.theme].light);
-//     data-settings-overlay).open === false
-// }
-
-// data-list-items.click() {
-//     pathArray = Array.from(event.path || event.composedPath())
-//     active;
-
-//     for (node; pathArray; i++) {
-//         if active break;
-//         const previewId = node?.dataset?.preview
-    
-//         for (const singleBook of books) {
-//             if (singleBook.id === id) active = singleBook
-//         } 
-//     }
-    
-//     if !active return
-//     data-list-active.open === true
-//     data-list-blur + data-list-image === active.image
-//     data-list-title === active.title
-    
-//     data-list-subtitle === '${authors[active.author]} (${Date(active.published).year})'
-//     data-list-description === active.description

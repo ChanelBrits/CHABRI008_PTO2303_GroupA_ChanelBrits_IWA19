@@ -20,7 +20,8 @@ export const html = {
         image: document.querySelector('[data-list-image]'),
         title: document.querySelector('[data-list-title]'),
         subtitle: document.querySelector('[data-list-subtitle]'),
-        description: document.querySelector('[data-list-description]')
+        description: document.querySelector('[data-list-description]'),
+        container: document.querySelector('[data-container]')
     },
     other: {
         button: document.querySelector('[data-list-button]'),
@@ -132,20 +133,3 @@ export const createStyling = (element) => {
         element.style.overflow = 'hidden';
     }
 }
-
-// export const previewStyling = () => {
-//     const {
-//         blur: previewBlur,
-//         image: previewImage,
-//         title: previewTitle,
-//         subtitle: previewSubtitle,
-//         description: previewDescription,
-//     } = html.preview
-
-//     previewBlur.src = books.image;
-//     previewImage.src = books.image;
-//     previewTitle.innerText = books.title;
-//     previewSubtitle.createElement('h2');
-//     previewSubtitle.innerText = `${books.author} (${books.published})`;
-//     previewDescription.innerText = books.description;
-// }
