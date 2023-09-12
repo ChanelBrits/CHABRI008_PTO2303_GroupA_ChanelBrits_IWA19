@@ -1,9 +1,6 @@
-import { 
-    authors, 
-    genres, 
-    books
-} from "./data.js";
-
+/**
+ * An object that stores all the HTML elements that are referenced throughout the app.
+ */
 export const html = {
     settings: {
         button: document.querySelector('[data-header-settings]'),
@@ -27,7 +24,9 @@ export const html = {
         button: document.querySelector('[data-list-button]'),
     }
 }
-
+/**
+ * An object that stores the styling for the book blocks that are generated
+ */
 const listStyling = {
     container: {
         display: 'flex',
@@ -54,17 +53,6 @@ const listStyling = {
     },
 };
 
-const clearForm = (formElement) => {
-    if (formElement) {
-        formElement.reset();
-    }
-}
-
-export const closeOverlay = (overlayElement, formElement) => {
-    overlayElement.style.display = 'none';
-    clearForm(formElement);
-}
-
 const dayTheme = {
     '--color-light': '255, 255, 255',
     '--color-dark': '10, 10, 20'
@@ -75,6 +63,16 @@ const nightTheme = {
     '--color-force-light': '255, 255, 255'
 }
 
+const clearForm = (formElement) => {
+    if (formElement) {
+        formElement.reset();
+    }
+}
+
+export const closeOverlay = (overlayElement, formElement) => {
+    overlayElement.style.display = 'none';
+    clearForm(formElement);
+}
 
 const applyStyles = (element, styles) => {
     for (const [property, value] of Object.entries(styles)) {

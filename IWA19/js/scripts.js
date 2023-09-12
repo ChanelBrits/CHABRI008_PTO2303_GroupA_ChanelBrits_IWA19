@@ -18,6 +18,7 @@ let page = 1;
 
 let clickedBookId = null;
 
+// Extracts and calculates values of book data into a new array
 for (const book of books) {
     const authorId = book.author;
     const authorName = authors[authorId];
@@ -71,6 +72,7 @@ const createListHtml = (bookList) => {
     const bookListElement = document.querySelector('[data-list-items]');
     bookListElement.appendChild(fragment);
 
+    // Applies styling to new elements
     const styleElements = document.querySelectorAll('[data-styling]');
     for (const element of styleElements) {
         createStyling(element);
@@ -87,8 +89,7 @@ createListHtml(bookList);
 /**
  * Handles the click event when a user selects a book. It then toggles
  * the preview overlay display. The global variable `clickedBookId` is updated
- * based on the book that was clicked, and it adds an event listener to the
- * close button in the overlay for easy closing when clicked.
+ * based on the book that was clicked.
  *
  * @param {Event} event
  */
@@ -98,14 +99,10 @@ const handlerPreviewToggle = (event) => {
         close: previewClose
     } = html.preview
 
-    console.log('handlerPreviewToggle is running');
-
     const bookBlock = event.currentTarget;
     const currentPage = document.querySelector('[data-page]');
-    console.log(currentPage)
     
     clickedBookId = bookBlock.dataset.id;
-    console.log(clickedBookId)
 
     previewOverlay.style.display = 'block';
 
@@ -114,7 +111,13 @@ const handlerPreviewToggle = (event) => {
     })
 }
 
-const handlerPreviewDisplay = (event) => {
+/**
+ *  A handler that fires when a book is clicked. It retrieves information about a
+ *  clicked book and displays information such as the book's image, title,
+ *  author, publication year, and description. It also removes the subtitle
+ *  element when closed.
+ */
+const handlerPreviewDisplay = () => {
     const {
         blur: previewBlur,
         image: previewImage,
@@ -123,14 +126,10 @@ const handlerPreviewDisplay = (event) => {
         description: previewDescription,
     } = html.preview
 
-    console.log('display works');
-
     const clickedBookData = bookList.find((book) => book.id === clickedBookId);
-    console.log(clickedBookData)
     
     const publicationYear = new Date(clickedBookData.published).getFullYear();
     const authorName = clickedBookData.author;
-    console.log(publicationYear, authorName)
 
     previewBlur.src = clickedBookData.image;
     previewImage.src = clickedBookData.image;
@@ -149,6 +148,14 @@ const handlerPreviewDisplay = (event) => {
     });
 }
 
+/**
+ * A handler that fires when the "Show more" button is clicked. It increases the
+ * page number and updates the displayed book list. After updating the page, it
+ * calls back to the {@link createListHtml} function to display the updated
+ * page.
+ *
+ * @param {Event} event  - The event object that triggers the function.
+ */ 
 const handlerShowMore = (event) => {
     event.preventDefault();
        
@@ -167,6 +174,13 @@ const handlerShowMore = (event) => {
     }
 }
 
+/**
+ * A handler that toggles the display of the settings overlay when the settings
+ * button is clicked. The settings overlay allows you to choose between a day
+ * and night theme. The overlay is closed when the cancel button is clicked.
+ *
+ * @param {Event} event - The event object that triggers the function.
+ */
 const handlerSettingsToggle = (event) => {
     event.preventDefault();
 
@@ -185,21 +199,28 @@ const handlerSettingsToggle = (event) => {
     })
 }
 
+/**
+ * A handler that stores and applies the selected theme. The function changes the theme
+ * based on the chosen value using {@link changeTheme} and the settings overlay
+ * is closed.
+ *
+ * @param {Event} event - The event object that triggers the function.
+ */
 const handlerSettingsSubmit = (event) => {
     event.preventDefault();
 
     const {
-        option: settingsOption,
+        option: settingsOption, 
         overlay: settingsOverlay
     } = html.settings
 
     const settingsOptionValue = settingsOption.value;
-    console.log(settingsOptionValue);
 
     changeTheme(settingsOptionValue);
     closeOverlay(settingsOverlay);
 }
 
+// Event listeners are set up for the above handlers
 html.other.button.addEventListener('click', handlerShowMore);
 
 const bookContainer = document.querySelectorAll('[data-id]');
