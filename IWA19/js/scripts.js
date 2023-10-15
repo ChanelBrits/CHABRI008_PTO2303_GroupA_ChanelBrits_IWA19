@@ -35,6 +35,7 @@ for (const book of books) {
         published: book.published
     });
 }
+
 /**
  * Generates and appends HTML elements to display a list of books within the
  * current page's range defined by the start and end indices. These HTML elements
@@ -124,6 +125,7 @@ const handlerPreviewDisplay = () => {
         title: previewTitle,
         subtitle: previewSubtitle,
         description: previewDescription,
+        close: previewClose
     } = html.preview
 
     const clickedBookData = bookList.find((book) => book.id === clickedBookId);
